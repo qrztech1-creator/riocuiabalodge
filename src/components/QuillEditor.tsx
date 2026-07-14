@@ -61,6 +61,7 @@ export default function QuillEditor({ value, onChange, className }: QuillEditorP
 
   return (
     <ReactQuill 
+      // @ts-ignore
       ref={quillRef}
       theme="snow" 
       value={value} 

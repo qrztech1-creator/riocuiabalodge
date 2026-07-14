@@ -9,9 +9,7 @@ export default function Dashboard() {
     noticiasPublicadas: 0,
     rascunhos: 0,
     eventos: 0,
-    pesquisas: 0,
-    projetos: 0,
-    legislacao: 0
+    artigos: 0
   });
 
   useEffect(() => {
