@@ -1,0 +1,1 @@
+fetch('http://localhost:3000/10-dicas-para-pescar-dourado').then(r => r.text()).then(t => console.log(t.substring(t.indexOf('<div class="blog-content-wrapper"'), t.indexOf('<div class="blog-content-wrapper"') + 200)))

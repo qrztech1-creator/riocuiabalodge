@@ -1,0 +1,1 @@
+&quot;z15bpT&quot;:[0,{&quot;type&quot;:[0,&quot;GridTextBox&quot;],&quot;mobile&quot;:[0,{&quot;top&quot;:[0,424],&quot;left&quot;:[0,0],&quot;width&quot;:[0,328],&quot;height&quot;:[0,3338]}]

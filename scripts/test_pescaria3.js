@@ -1,0 +1,9 @@
+const fs = require('fs');
+const html = fs.readFileSync('out_pescaria2.html', 'utf8');
+
+const contentMatch = html.match(/&quot;z15bpT&quot;:\[0,\{.*?&quot;content&quot;:\[0,&quot;(.*?)&quot;\]/s);
+if (contentMatch) {
+   let content = contentMatch[1].replace(/\\&quot;/g, '"');
+   console.log("Images found (&lt;img):", (content.match(/&lt;img/g) || []).length);
+   console.log("Galleries found (&lt;div class=&quot;post-gallery):", (content.match(/&lt;div class="post-gallery/g) || []).length);
+}
