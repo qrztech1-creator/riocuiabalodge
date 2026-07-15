@@ -28,11 +28,20 @@ section.block--desktop-first-visible {
 </a><!--]--></div><!----><!----><!----><!----><!----><!----><!----><!--[--><!--]--><!--]--></div><div class="layout-element layout-element--layout layout-element transition transition--undefined" style="--text:left;--align:flex-start;--justify:center;--m-element-margin:0 0 29px 0;--z-index:3;--grid-row:3/4;--grid-column:4/5;--m-grid-row:6/7;--m-grid-column:1/3;--7c3810b2:110px;--36d4e892:153px;" data-v-4edbe80f><!--[--><!----><!----><!----><!----><!----><div class="text-box layout-element__component layout-element__component--GridTextBox" id="y1ULCBLQyg" data-v-4edbe80f style="--54285089:break-spaces;--6191828b:break-spaces;"><h6 style="color: rgb(255, 202, 54)" dir="auto"><span style="font-family: Oswald; font-weight: 300"><strong>ENDEREÇO</strong></span></h6><p class="body" style="color: rgb(255, 255, 255)" dir="auto"><br>Avenida Antártica, s/n, Lote 23, Quadra 01, Loteamento Tarumã, Distrito Sucuri, Bairro Ribeirão da Ponte, Cuiabá – MT, CEP 78040-500</p></div><!----><!----><!----><!----><!----><!----><!----><!----><!----><!--[--><!--]--><!--]--></div><!--]--><!--]--></div><!----><!----><!----><!----><!----><!----><!----></section><!--]--></div><!----><!----><!----></main><!----><!----><!--]--><!--astro:end--></astro-island> <astro-island uid="Z17XHjY" component-url="/_astro-1769204109965/Integrations.hfa8jWW6.js" component-export="default" renderer-url="/_astro-1769204109965/client.D2pusNY7.js" props="{&quot;siteMeta&quot;:[0,{&quot;version&quot;:[0,197],&quot;template&quot;:[0,&quot;bronx&quot;],&quot;defaultLocale&quot;:[0,&quot;system&quot;],&quot;whatsAppNumber&quot;:[0,&quot;31996467116&quot;],&quot;whatsAppMessage&quot;:[0,&quot;Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20fazer%20minha%20reserva.&quot;],&quot;isPrivateModeActive&quot;:[0,false],&quot;demoEcommerceStoreId&quot;:[0,&quot;demo_01G0E9P2R0CFTNBWEEFCEV8EG5&quot;],&quot;shouldAddWWWPrefixToDomain&quot;:[0,false]}]}" ssr client="only" opts="{&quot;name&quot;:&quot;Integrations&quot;,&quot;value&quot;:&quot;vue&quot;}"></astro-island> </div>  
 
 
+
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
-  /* Make the header container relative so the dropdown can sit below it */
+  /* Ensure header elements allow overflow so absolute dropdown is visible */
+  .block-header,
   .block-header-layout-mobile {
+    overflow: visible !important;
     position: relative !important;
+  }
+  
+  /* When menu is open, make the header background match the dropdown */
+  .block-header.is-open,
+  .block-header-layout-mobile.is-open {
+    background-color: #1a1a1a !important;
   }
 
   /* Force the dropdown to show up right below the header */
@@ -52,6 +61,7 @@ section.block--desktop-first-visible {
     visibility: visible !important;
     transform: none !important;
     clip-path: none !important;
+    overflow-y: auto !important;
   }
 
   /* Force visibility on all children */
@@ -79,10 +89,12 @@ section.block--desktop-first-visible {
     display: none !important;
   }
   .burger.is-open .burger__bun:first-of-type {
+    transform-origin: center !important;
     transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
   .burger.is-open .burger__bun:last-of-type {
+    transform-origin: center !important;
     transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
   }
@@ -115,9 +127,14 @@ section.block--desktop-first-visible {
       var btn = e.target.closest('.burger');
       if (btn) {
         var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
+        var header = document.querySelector('.block-header');
+        var mobileHeader = document.querySelector('.block-header-layout-mobile');
+        
         if (dropdown) {
           dropdown.classList.toggle('is-open');
           btn.classList.toggle('is-open');
+          if (header) header.classList.toggle('is-open');
+          if (mobileHeader) mobileHeader.classList.toggle('is-open');
           
           if (dropdown.classList.contains('is-open')) {
              dropdown.style.setProperty('display', 'flex', 'important');
@@ -132,6 +149,7 @@ section.block--desktop-first-visible {
   }
 </script>
 </body>
+
 
 
 </html> 

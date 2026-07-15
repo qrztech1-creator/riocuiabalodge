@@ -7,9 +7,17 @@ const files = fs.readdirSync(dir).filter(f => f.endsWith('.html'));
 const injection = `
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
-  /* Make the header container relative so the dropdown can sit below it */
+  /* Ensure header elements allow overflow so absolute dropdown is visible */
+  .block-header,
   .block-header-layout-mobile {
+    overflow: visible !important;
     position: relative !important;
+  }
+  
+  /* When menu is open, make the header background match the dropdown */
+  .block-header.is-open,
+  .block-header-layout-mobile.is-open {
+    background-color: #1a1a1a !important;
   }
 
   /* Force the dropdown to show up right below the header */
@@ -29,6 +37,7 @@ const injection = `
     visibility: visible !important;
     transform: none !important;
     clip-path: none !important;
+    overflow-y: auto !important;
   }
 
   /* Force visibility on all children */
@@ -56,10 +65,12 @@ const injection = `
     display: none !important;
   }
   .burger.is-open .burger__bun:first-of-type {
+    transform-origin: center !important;
     transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
   .burger.is-open .burger__bun:last-of-type {
+    transform-origin: center !important;
     transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
   }
@@ -92,9 +103,14 @@ const injection = `
       var btn = e.target.closest('.burger');
       if (btn) {
         var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
+        var header = document.querySelector('.block-header');
+        var mobileHeader = document.querySelector('.block-header-layout-mobile');
+        
         if (dropdown) {
           dropdown.classList.toggle('is-open');
           btn.classList.toggle('is-open');
+          if (header) header.classList.toggle('is-open');
+          if (mobileHeader) mobileHeader.classList.toggle('is-open');
           
           if (dropdown.classList.contains('is-open')) {
              dropdown.style.setProperty('display', 'flex', 'important');
