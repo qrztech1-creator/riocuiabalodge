@@ -11,7 +11,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Login Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error', details: error?.message, stack: error?.stack }, { status: 500 });
   }
 }
