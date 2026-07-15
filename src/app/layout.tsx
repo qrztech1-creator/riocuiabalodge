@@ -25,11 +25,8 @@ export default function RootLayout({
                 if (btn) {
                   var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
                   if (dropdown) {
-                    if (dropdown.style.display === 'block') {
-                      dropdown.style.display = 'none';
-                    } else {
-                      dropdown.style.display = 'block';
-                    }
+                    dropdown.classList.toggle('is-open');
+                    btn.classList.toggle('is-open');
                   }
                 }
               });
