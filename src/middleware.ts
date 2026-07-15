@@ -7,6 +7,7 @@ const STATIC_PAGES: Record<string, string> = {
   '/pescaria': '/pages/pescaria.html',
   '/depoimentos': '/pages/depoimentos.html',
   '/contato': '/pages/contato.html',
+  '/eventos': '/pages/eventos.html',
 };
 
 const secretKey = 'pousada2026-super-secret-key-change-in-prod';
