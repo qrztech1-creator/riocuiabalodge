@@ -870,6 +870,7 @@ window.addEventListener('scroll', function() {
 </script>
 
 
+
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
   /* Make the header container relative so the dropdown can sit below it */
@@ -910,7 +911,7 @@ window.addEventListener('scroll', function() {
     gap: 15px !important;
   }
 
-  /* Fix the burger icon */
+  /* Fix the burger icon to form a perfect X */
   .burger.is-open {
     border: none !important;
     background: transparent !important;
@@ -920,12 +921,12 @@ window.addEventListener('scroll', function() {
   .burger.is-open .burger__meat {
     display: none !important;
   }
-  .burger.is-open .burger__bun:first-child {
-    transform: rotate(45deg) translate(2px, 5px) !important;
+  .burger.is-open .burger__bun:first-of-type {
+    transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
-  .burger.is-open .burger__bun:last-child {
-    transform: rotate(-45deg) translate(2px, -4px) !important;
+  .burger.is-open .burger__bun:last-of-type {
+    transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
   }
 }
@@ -974,5 +975,6 @@ window.addEventListener('scroll', function() {
   }
 </script>
 </body>
+
 
 </html>

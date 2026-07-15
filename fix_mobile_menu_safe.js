@@ -45,7 +45,7 @@ const injection = `
     gap: 15px !important;
   }
 
-  /* Fix the burger icon */
+  /* Fix the burger icon to form a perfect X */
   .burger.is-open {
     border: none !important;
     background: transparent !important;
@@ -55,12 +55,12 @@ const injection = `
   .burger.is-open .burger__meat {
     display: none !important;
   }
-  .burger.is-open .burger__bun:first-child {
-    transform: rotate(45deg) translate(2px, 5px) !important;
+  .burger.is-open .burger__bun:first-of-type {
+    transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
-  .burger.is-open .burger__bun:last-child {
-    transform: rotate(-45deg) translate(2px, -4px) !important;
+  .burger.is-open .burger__bun:last-of-type {
+    transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
   }
 }
@@ -114,6 +114,9 @@ const injection = `
 files.forEach(file => {
   const fullPath = path.join(dir, file);
   let content = fs.readFileSync(fullPath, 'utf8');
+  
+  // Clean up any old injections if they exist
+  content = content.replace(/<style id="custom-mobile-menu-style">[\s\S]*?<\/script>\s*<\/body>/g, '</body>');
   
   if (!content.includes('custom-mobile-menu-style')) {
     content = content.replace('</body>', injection);

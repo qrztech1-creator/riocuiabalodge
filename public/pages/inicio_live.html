@@ -30,6 +30,7 @@ section.block--desktop-first-visible {
 </svg>
 </a><!--]--></div><!----><!----><!----><!----><!----><!----><!----><!--[--><!--]--><!--]--></div><div class="layout-element layout-element--layout layout-element transition transition--undefined" style="--text:left;--align:flex-start;--justify:center;--m-element-margin:0 0 29px 0;--z-index:3;--grid-row:3/4;--grid-column:4/5;--m-grid-row:6/7;--m-grid-column:1/3;--7c3810b2:110px;--36d4e892:153px;" data-v-4edbe80f><!--[--><!----><!----><!----><!----><!----><div class="text-box layout-element__component layout-element__component--GridTextBox" id="y1ULCBLQyg" data-v-4edbe80f style="--54285089:break-spaces;--6191828b:break-spaces;"><h6 style="color: rgb(255, 202, 54)" dir="auto"><span style="font-family: Oswald; font-weight: 300"><strong>ENDEREÇO</strong></span></h6><p class="body" style="color: rgb(255, 255, 255)" dir="auto"><br>Avenida Antártica, s/n, Lote 23, Quadra 01, Loteamento Tarumã, Distrito Sucuri, Bairro Ribeirão da Ponte, Cuiabá – MT, CEP 78040-500</p></div><!----><!----><!----><!----><!----><!----><!----><!----><!----><!--[--><!--]--><!--]--></div><!--]--><!--]--></div><!----><!----><!----><!----><!----><!----><!----></section><!--]--></div><!----><!----><!----></main><!----><!----><!--]--><!--astro:end--></astro-island> <astro-island uid="Z17XHjY" component-url="/_astro-1769204109965/Integrations.hfa8jWW6.js" component-export="default" renderer-url="/_astro-1769204109965/client.D2pusNY7.js" props="{&quot;siteMeta&quot;:[0,{&quot;version&quot;:[0,197],&quot;template&quot;:[0,&quot;bronx&quot;],&quot;defaultLocale&quot;:[0,&quot;system&quot;],&quot;whatsAppNumber&quot;:[0,&quot;31996467116&quot;],&quot;whatsAppMessage&quot;:[0,&quot;Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20fazer%20minha%20reserva.&quot;],&quot;isPrivateModeActive&quot;:[0,false],&quot;demoEcommerceStoreId&quot;:[0,&quot;demo_01G0E9P2R0CFTNBWEEFCEV8EG5&quot;],&quot;shouldAddWWWPrefixToDomain&quot;:[0,false]}]}" ssr client="only" opts="{&quot;name&quot;:&quot;Integrations&quot;,&quot;value&quot;:&quot;vue&quot;}"></astro-island> </div>  
 
+
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
   /* Make the header container relative so the dropdown can sit below it */
@@ -70,7 +71,7 @@ section.block--desktop-first-visible {
     gap: 15px !important;
   }
 
-  /* Fix the burger icon */
+  /* Fix the burger icon to form a perfect X */
   .burger.is-open {
     border: none !important;
     background: transparent !important;
@@ -80,12 +81,12 @@ section.block--desktop-first-visible {
   .burger.is-open .burger__meat {
     display: none !important;
   }
-  .burger.is-open .burger__bun:first-child {
-    transform: rotate(45deg) translate(2px, 5px) !important;
+  .burger.is-open .burger__bun:first-of-type {
+    transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
-  .burger.is-open .burger__bun:last-child {
-    transform: rotate(-45deg) translate(2px, -4px) !important;
+  .burger.is-open .burger__bun:last-of-type {
+    transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
   }
 }
@@ -134,5 +135,6 @@ section.block--desktop-first-visible {
   }
 </script>
 </body>
+
 
 </html> 
