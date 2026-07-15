@@ -1,0 +1,1 @@
+const fs = require('fs'); const file = 'public/pages/inicio.html'; let content = fs.readFileSync(file, 'utf8'); const section = content.substring(content.indexOf('<section id="z1jsXo"'), content.indexOf('</section>', content.indexOf('<section id="z1jsXo"'))); console.log(section);
