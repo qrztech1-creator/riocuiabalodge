@@ -617,31 +617,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
-  /* Ensure header elements allow overflow so absolute dropdown is visible */
-  .block-header,
-  .block-header-layout-mobile {
-    overflow: visible !important;
-    position: relative !important;
-  }
-  
   /* When menu is open, make the header background match the dropdown */
   .block-header.is-open,
   .block-header-layout-mobile.is-open {
     background-color: #1a1a1a !important;
   }
 
-  /* Force the dropdown to show up right below the header */
+  /* Force the dropdown to show up as fixed so it breaks out of overflow:hidden */
   .block-header-layout-mobile__dropdown.is-open {
     display: flex !important;
-    position: absolute !important;
-    top: 100% !important;
+    position: fixed !important;
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
     background-color: #1a1a1a !important;
-    z-index: 99999 !important;
+    z-index: 999999 !important;
     flex-direction: column !important;
     padding: 40px 40px !important;
     align-items: flex-end !important;
@@ -725,6 +718,11 @@ document.addEventListener("DOMContentLoaded", () => {
           if (mobileHeader) mobileHeader.classList.toggle('is-open');
           
           if (dropdown.classList.contains('is-open')) {
+             if (mobileHeader) {
+               var rect = mobileHeader.getBoundingClientRect();
+               dropdown.style.setProperty('top', rect.bottom + 'px', 'important');
+             }
+             
              dropdown.style.setProperty('display', 'flex', 'important');
              document.body.style.overflow = 'hidden'; // Prevent background scrolling
           } else {
@@ -737,6 +735,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 </script>
 </body>
+
 
 
 
