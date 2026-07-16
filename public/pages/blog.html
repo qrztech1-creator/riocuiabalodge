@@ -249,38 +249,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
-  /* When menu is open, make the header background match the dropdown */
-  .block-header.is-open,
-  .block-header-layout-mobile.is-open {
-    background-color: #1a1a1a !important;
-  }
-
-  /* Force the dropdown to show up as fixed so it breaks out of overflow:hidden */
+  /* Override the Hostinger default that caps the dropdown at 50vh */
+  .block-header-layout-mobile__dropdown--open[data-v-a07a4ffe],
+  .block-header-layout-mobile__dropdown--open,
   .block-header-layout-mobile__dropdown.is-open {
+    max-height: 100dvh !important;
+    height: calc(100dvh - var(--header-height-mobile, 51px)) !important;
+    overflow-y: auto !important;
+    visibility: visible !important;
     display: flex !important;
     position: fixed !important;
     left: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
     background-color: #1a1a1a !important;
     z-index: 999999 !important;
     flex-direction: column !important;
-    padding: 40px 40px !important;
+    padding: 30px 40px 40px 40px !important;
     align-items: flex-end !important;
     opacity: 1 !important;
-    visibility: visible !important;
     transform: none !important;
     clip-path: none !important;
-    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    animation: none !important;
   }
 
-  /* Force visibility on all children */
+  .block-header-layout-mobile__dropdown--open * ,
   .block-header-layout-mobile__dropdown.is-open * {
     visibility: visible !important;
     opacity: 1 !important;
   }
 
-  /* Fix the list direction */
+  .block-header-layout-mobile__dropdown--open ul,
   .block-header-layout-mobile__dropdown.is-open ul {
     display: flex !important;
     flex-direction: column !important;
@@ -288,78 +289,174 @@ document.addEventListener("DOMContentLoaded", () => {
     gap: 15px !important;
   }
 
-  /* Fix the burger icon to form a perfect X */
+  /* HIDE the original Hostinger Whatsapp + Area Admin buttons (the horizontal ones) */
+  .block-header-layout-mobile__dropdown .grid-button,
+  .block-header-layout-mobile__dropdown > div[style*="display: flex"][style*="gap: 12px"] {
+    display: none !important;
+  }
+
+  /* Burger X animation */
+  .burger--open,
   .burger.is-open {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
     outline: none !important;
   }
+  .burger--open .burger__meat,
   .burger.is-open .burger__meat {
     display: none !important;
+    width: 0 !important;
+    opacity: 0 !important;
   }
+  .burger--open .burger__bun:first-of-type,
+  .burger--open .burger__bun:first-child,
   .burger.is-open .burger__bun:first-of-type {
     transform-origin: center !important;
     transform: translateY(8px) rotate(45deg) !important;
     background-color: #f9b233 !important;
   }
+  .burger--open .burger__bun:last-of-type,
+  .burger--open .burger__bun:last-child,
   .burger.is-open .burger__bun:last-of-type {
     transform-origin: center !important;
     transform: translateY(-8px) rotate(-45deg) !important;
     background-color: #f9b233 !important;
+  }
+
+  .mobile-menu-buttons-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 15px !important;
+    margin-top: 40px !important;
+    width: 100% !important;
+  }
+  
+  .mobile-wpp-btn {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: 25px !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    width: 160px !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important;
+    display: inline-block !important;
+  }
+
+  .mobile-admin-btn {
+    background-color: transparent !important;
+    color: white !important;
+    border: 1px solid white !important;
+    padding: 12px 24px !important;
+    border-radius: 25px !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    width: 160px !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important;
+    display: inline-block !important;
   }
 }
 </style>
 <script id="custom-mobile-menu-script">
   if (typeof window !== 'undefined') {
     document.addEventListener('DOMContentLoaded', function() {
-      // Add Admin button below WhatsApp button
-      const wppBtn = document.querySelector('.block-header-layout-mobile__dropdown a[href*="whatsapp.com"]');
-      if (wppBtn && wppBtn.parentElement) {
-        wppBtn.parentElement.style.display = 'flex';
-        wppBtn.parentElement.style.flexDirection = 'column';
-        wppBtn.parentElement.style.alignItems = 'flex-end';
-        wppBtn.parentElement.style.gap = '10px';
-        
-        if (!document.getElementById('admin-btn-mobile')) {
-          const adminBtn = document.createElement('a');
-          adminBtn.id = 'admin-btn-mobile';
-          adminBtn.href = '/admin';
-          adminBtn.textContent = 'Admin';
-          adminBtn.className = wppBtn.className;
-          adminBtn.style.cssText = 'background-color: transparent !important; border: 1px solid white !important; color: white !important; width: 100%; text-align: center;';
-          wppBtn.parentElement.appendChild(adminBtn);
-        }
-      }
+      // Add Whatsapp + Admin buttons into the dropdown
+      var dropdowns = document.querySelectorAll('.block-header-layout-mobile__dropdown');
+      dropdowns.forEach(function(dropdown) {
+         // Remove any existing original button containers (the horizontal Whatsapp + Area Admin)
+         var origBtnDivs = dropdown.querySelectorAll('div[style*="gap: 12px"]');
+         origBtnDivs.forEach(function(d) { d.style.display = 'none'; });
+
+         var btnContainer = dropdown.querySelector('.mobile-menu-buttons-container');
+         if (!btnContainer) {
+             btnContainer = document.createElement('div');
+             btnContainer.className = 'mobile-menu-buttons-container';
+             dropdown.appendChild(btnContainer);
+         }
+         
+         if (!dropdown.querySelector('#wpp-btn-mobile')) {
+             var wppBtn = document.createElement('a');
+             wppBtn.id = 'wpp-btn-mobile';
+             wppBtn.href = 'https://wa.me/31996467116';
+             wppBtn.textContent = 'Whatsapp';
+             wppBtn.className = 'mobile-wpp-btn';
+             wppBtn.target = '_blank';
+             wppBtn.rel = 'noopener';
+             btnContainer.appendChild(wppBtn);
+         }
+
+         if (!dropdown.querySelector('#admin-btn-mobile')) {
+             var adminBtn = document.createElement('a');
+             adminBtn.id = 'admin-btn-mobile';
+             adminBtn.href = '/admin';
+             adminBtn.textContent = 'Admin';
+             adminBtn.className = 'mobile-admin-btn';
+             btnContainer.appendChild(adminBtn);
+         }
+      });
     });
 
+    // Override burger click to use both class formats
     document.addEventListener('click', function(e) {
       var btn = e.target.closest('.burger');
-      if (btn) {
-        var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
-        var header = document.querySelector('.block-header');
-        var mobileHeader = document.querySelector('.block-header-layout-mobile');
+      if (!btn) return;
+      
+      e.stopPropagation();
+      
+      var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
+      if (!dropdown) return;
+      
+      var isCurrentlyOpen = dropdown.classList.contains('block-header-layout-mobile__dropdown--open') || 
+                            dropdown.classList.contains('is-open');
+      
+      if (isCurrentlyOpen) {
+        dropdown.classList.remove('block-header-layout-mobile__dropdown--open', 'is-open');
+        dropdown.classList.remove('block-header-layout-mobile__dropdown--full-screen');
+        btn.classList.remove('burger--open', 'is-open');
+        dropdown.style.cssText = '';
+        document.body.style.overflow = '';
+      } else {
+        dropdown.classList.add('block-header-layout-mobile__dropdown--open', 'is-open');
+        dropdown.classList.add('block-header-layout-mobile__dropdown--full-screen');
+        btn.classList.add('burger--open', 'is-open');
         
-        if (dropdown) {
-          dropdown.classList.toggle('is-open');
-          btn.classList.toggle('is-open');
-          if (header) header.classList.toggle('is-open');
-          if (mobileHeader) mobileHeader.classList.toggle('is-open');
-          
-          if (dropdown.classList.contains('is-open')) {
-             if (mobileHeader) {
-               var rect = mobileHeader.getBoundingClientRect();
-               dropdown.style.setProperty('top', rect.bottom + 'px', 'important');
-             }
-             
-             dropdown.style.setProperty('display', 'flex', 'important');
-             document.body.style.overflow = 'hidden'; // Prevent background scrolling
-          } else {
-             dropdown.style.setProperty('display', 'none', 'important');
-             document.body.style.overflow = '';
-          }
+        var mobileHeader = document.querySelector('.block-header-layout-mobile');
+        if (mobileHeader) {
+          var stickyBar = document.querySelector('.block-sticky-bar');
+          var stickyH = stickyBar ? stickyBar.getBoundingClientRect().height : 0;
+          var headerEl = document.querySelector('header.block-header');
+          var headerH = headerEl ? headerEl.getBoundingClientRect().height : 0;
+          dropdown.style.setProperty('top', (stickyH + headerH) + 'px', 'important');
+          dropdown.style.setProperty('height', 'calc(100dvh - ' + (stickyH + headerH) + 'px)', 'important');
         }
+        
+        document.body.style.overflow = 'hidden'; 
       }
+    }, true);
+    
+    // Close menu when a nav link is clicked
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('.block-header-layout-mobile__dropdown .item-content');
+      if (!link) return;
+      
+      var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
+      var btn = document.querySelector('.burger');
+      if (dropdown) {
+        dropdown.classList.remove('block-header-layout-mobile__dropdown--open', 'is-open', 'block-header-layout-mobile__dropdown--full-screen');
+        dropdown.style.cssText = '';
+      }
+      if (btn) {
+        btn.classList.remove('burger--open', 'is-open');
+      }
+      document.body.style.overflow = '';
     });
   }
 </script>
