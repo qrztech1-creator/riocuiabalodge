@@ -37,12 +37,15 @@
 }
 </style>
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+async function loadCMSPosts() {
     try {
         const response = await fetch('/api/posts');
-        const posts = await response.json();
+        const data = await response.json();
         
-        if (!posts || posts.length === 0) return;
+        if (!Array.isArray(data) || data.length === 0) return;
+
+        const posts = data.filter(p => (p.category === 'EVENTO' || p.category === 'Eventos'));
+        if (posts.length === 0) return;
 
         const grid = document.createElement('div');
         grid.style.cssText = 'width: 100%; max-width: 1224px; margin: 0 auto; padding: 32px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; z-index: 50; position: relative;';
@@ -56,9 +59,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const thumb = post.thumbnailImage || post.coverImage;
             card.innerHTML = `
                 <div style="position: relative; height: 256px; overflow: hidden;">
-                    ${thumb && thumb.endsWith('.mp4') 
-                        ? '<video src="' + thumb + '" autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;; pointer-events: none;"></video>'
-                        : '<img src="' + thumb + '" alt="' + post.title + '" style="width: 100%; height: 100%; object-fit: cover;; pointer-events: none;" loading="lazy" />'
+                    ${thumb && (thumb.endsWith('.mp4') || thumb.endsWith('.webm') || thumb.endsWith('.mov')) 
+                        ? '<video src="' + thumb + '" autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;"></video>'
+                        : '<img src="' + thumb + '" alt="' + post.title + '" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" loading="lazy" />'
                     }
                     <div style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); color: black; font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                         ${post.category}
@@ -96,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             blockBlogList.appendChild(grid);
         } else {
             const headings = Array.from(document.querySelectorAll('h3, h4, h5, h6, p, span, a'));
-            const titlesToHide = ['Turismo de Experiência', '10 Dicas para Pescar Dourado', 'Pescaria Acontecendo'];
+            const titlesToHide = ['Turismo de Experiência', '10 Dicas para Pescar Dourado', 'Pescaria Acontecendo', 'Eventos Corporativos', 'Confraternização'];
             
             const targetElement = headings.find(el => titlesToHide.some(title => el.textContent.includes(title)));
             if (targetElement) {
@@ -104,11 +107,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const blockLayout = targetElement.closest('.block-layout');
                 
                 if (blockLayout) {
-                    // Hide all original items (cards, pagination)
                     Array.from(blockLayout.children).forEach(child => {
-                        child.style.display = 'none';
+                        child.style.cssText = "display: none !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important;";
+                        child.remove();
                     });
-                    // Reset grid to block to remove large white space gaps
                     blockLayout.style.display = 'block';
                     blockLayout.style.minHeight = 'auto';
                     blockLayout.appendChild(grid);
@@ -120,7 +122,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
         console.error('CMS Injector error:', e);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCMSPosts);
+} else {
+    loadCMSPosts();
+}
 </script>
 
 

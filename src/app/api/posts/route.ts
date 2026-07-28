@@ -16,8 +16,9 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(posts);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error fetching posts in /api/posts:', error);
+    return NextResponse.json({ error: 'Failed to fetch posts', message: error?.message }, { status: 500 });
   }
 }
 

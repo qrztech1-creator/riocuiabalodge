@@ -37,12 +37,12 @@
 }
 </style>
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+async function loadCMSPosts() {
     try {
         const response = await fetch('/api/posts');
         const posts = await response.json();
         
-        if (!posts || posts.length === 0) return;
+        if (!Array.isArray(posts) || posts.length === 0) return;
 
         const grid = document.createElement('div');
         grid.style.cssText = 'width: 100%; max-width: 1224px; margin: 0 auto; padding: 32px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; z-index: 50; position: relative;';
@@ -120,7 +120,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
         console.error('CMS Injector error:', e);
     }
-});
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCMSPosts);
+} else {
+    loadCMSPosts();
+}
 </script>
 
 
