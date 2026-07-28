@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -3265,18 +3265,25 @@ section.block--desktop-first-visible {
 
 <style id="custom-mobile-menu-style">
 @media (max-width: 991px) {
-  /* Override the Hostinger default that caps the dropdown at 50vh */
+  /* Ensure mobile header is positioned for absolute dropdown */
+  .block-header-layout-mobile {
+    position: relative !important;
+  }
+
+  /* Mobile dropdown - compact, opaque, content-height */
   .block-header-layout-mobile__dropdown--open[data-v-a07a4ffe],
   .block-header-layout-mobile__dropdown--open,
   .block-header-layout-mobile__dropdown.is-open {
-    max-height: 100dvh !important;
-    height: calc(100dvh - var(--header-height-mobile, 51px)) !important;
+    max-height: none !important;
+    height: auto !important;
     overflow-y: auto !important;
     visibility: visible !important;
     display: flex !important;
-    position: fixed !important;
+    position: absolute !important;
+    top: 100% !important;
     left: 0 !important;
-    bottom: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
     width: 100vw !important;
     background-color: #1a1a1a !important;
     z-index: 999999 !important;
@@ -3287,8 +3294,9 @@ section.block--desktop-first-visible {
     transform: none !important;
     clip-path: none !important;
     box-sizing: border-box !important;
-    box-shadow: none !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
     animation: none !important;
+    border-bottom: 2px solid #f9b233 !important;
   }
 
   .block-header-layout-mobile__dropdown--open * ,
@@ -3343,9 +3351,9 @@ section.block--desktop-first-visible {
   .mobile-menu-buttons-container {
     display: flex !important;
     flex-direction: column !important;
-    align-items: flex-end !important;
-    gap: 15px !important;
-    margin-top: 40px !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 30px !important;
     width: 100% !important;
   }
   
@@ -3441,18 +3449,10 @@ section.block--desktop-first-visible {
         document.body.style.overflow = '';
       } else {
         dropdown.classList.add('block-header-layout-mobile__dropdown--open', 'is-open');
-        dropdown.classList.add('block-header-layout-mobile__dropdown--full-screen');
+        
         btn.classList.add('burger--open', 'is-open');
         
-        var mobileHeader = document.querySelector('.block-header-layout-mobile');
-        if (mobileHeader) {
-          var stickyBar = document.querySelector('.block-sticky-bar');
-          var stickyH = stickyBar ? stickyBar.getBoundingClientRect().height : 0;
-          var headerEl = document.querySelector('header.block-header');
-          var headerH = headerEl ? headerEl.getBoundingClientRect().height : 0;
-          dropdown.style.setProperty('top', (stickyH + headerH) + 'px', 'important');
-          dropdown.style.setProperty('height', 'calc(100dvh - ' + (stickyH + headerH) + 'px)', 'important');
-        }
+        
         
         document.body.style.overflow = 'hidden'; 
       }

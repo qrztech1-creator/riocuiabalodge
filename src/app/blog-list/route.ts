@@ -8,14 +8,6 @@ export const revalidate = 0;
 
 export async function GET(request: Request) {
   try {
-    const posts = await prisma.post.findMany({
-      where: {
-        status: "PUBLISHED",
-        category: { not: "Eventos" },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
     const templatePath = path.join(process.cwd(), "public/pages/blog.html");
     let html = "";
 
@@ -24,6 +16,19 @@ export async function GET(request: Request) {
     } catch (err) {
       console.error("Template not found", err);
       return new NextResponse("Template not found", { status: 500 });
+    }
+
+    let posts: any[] = [];
+    try {
+      posts = await prisma.post.findMany({
+        where: {
+          status: "PUBLISHED",
+          category: { not: "Eventos" },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (dbError) {
+      console.error("Database connection failed, serving template without posts:", dbError);
     }
 
     const postsHtml = `
