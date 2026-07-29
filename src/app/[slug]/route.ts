@@ -16,17 +16,16 @@ function encodeForZyroJson(str: string) {
     .replace(/>/g, '&gt;');
 }
 
+import { getCachedPostBySlug } from '@/lib/posts';
+
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const { slug } = resolvedParams;
 
   try {
-    const post = await prisma.post.findUnique({
-      where: { slug }
-    });
+    const post = await getCachedPostBySlug(slug);
 
     if (!post) {
       return NextResponse.next();

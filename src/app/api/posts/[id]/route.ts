@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { clearPostsCache } from '@/lib/posts';
 
 export async function DELETE(
   request: Request,
@@ -16,6 +17,7 @@ export async function DELETE(
     await prisma.post.delete({
       where: { id },
     });
+    clearPostsCache();
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 });
@@ -53,6 +55,7 @@ export async function PUT(
       }
     });
 
+    clearPostsCache();
     return NextResponse.json(post);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update post' }, { status: 500 });

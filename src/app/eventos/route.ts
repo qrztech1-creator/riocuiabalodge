@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getCachedPosts } from "@/lib/posts";
 import fs from "fs";
 import path from "path";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export async function GET(request: Request) {
   try {
-    const posts = await prisma.post.findMany({
-      where: {
-        status: "PUBLISHED",
-        category: { contains: "Evento" },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
     const templatePath = path.join(process.cwd(), "public/pages/eventos.html");
     let html = "";
 
@@ -24,6 +15,14 @@ export async function GET(request: Request) {
     } catch (err) {
       console.error("Template not found", err);
       return new NextResponse("Template not found", { status: 500 });
+    }
+
+    let posts: any[] = [];
+    try {
+      const allPosts = await getCachedPosts(false);
+      posts = allPosts.filter((p: any) => p.category === "Eventos" || p.category === "EVENTO");
+    } catch (dbError) {
+      console.error("Error retrieving posts for eventos:", dbError);
     }
 
     const postsHtml = `
@@ -64,55 +63,11 @@ export async function GET(request: Request) {
       </style>
     `;
 
-    const customCss = `
-    <style>
-      #zQ-Jyn { background-color: #1a1a1a !important; height: auto !important; min-height: auto !important; }
-      /* Hide Zyro's empty blog grid and pagination */
-      #zQ-Jyn .block-blog-list__empty-block, #zQ-Jyn .pagination { display: none !important; }
-    </style>
-    `;
-
-    const script = `
-        ${customCss}
-        <div id="dynamic-posts-data" style="display:none;">
-             ${postsHtml}
-        </div>
-        <script>
-          (function() {
-            let injected = false;
-            function inject() {
-               if (injected) return true;
-               const target = document.getElementById('zQ-Jyn');
-               const source = document.getElementById('dynamic-posts-data');
-               if (target && source && target.querySelector('.block-blog-list__empty-block')) {
-                  if (!document.getElementById('ssr-injected-posts')) {
-                     target.insertAdjacentHTML('afterbegin', source.innerHTML);
-                  }
-                  injected = true;
-                  return true;
-               }
-               return false;
-            }
-            
-            if (!inject()) {
-               const intv = setInterval(() => {
-                  if (inject()) clearInterval(intv);
-               }, 20);
-               setTimeout(() => clearInterval(intv), 2000);
-            }
-          })();
-        </script>
-    `;
-
     const regex = new RegExp("(<div id=\"zQ-Jyn\"[^>]*>)");
     if (regex.test(html)) {
        html = html.replace(regex, `$1${postsHtml}`);
-    }
-
-    if (html.includes('</body>')) {
-        html = html.replace('</body>', script + '</body>');
-    } else {
-        html += script;
+    } else if (html.includes('</body>')) {
+       html = html.replace('</body>', `${postsHtml}</body>`);
     }
 
     return new NextResponse(html, {

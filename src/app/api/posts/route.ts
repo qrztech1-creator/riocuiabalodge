@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCachedPosts, clearPostsCache } from '@/lib/posts';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,13 +9,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const all = url.searchParams.get('all') === 'true';
     
-    // If not requesting all (i.e. public view), only fetch PUBLISHED
-    const where = all ? {} : { status: 'PUBLISHED' };
-    
-    const posts = await prisma.post.findMany({
-      where,
-      orderBy: { createdAt: 'desc' }
-    });
+    const posts = await getCachedPosts(all);
     return NextResponse.json(posts);
   } catch (error: any) {
     console.error('Error fetching posts in /api/posts:', error);
@@ -27,7 +22,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { title, category, content, coverImage, thumbnailImage, readTime, status, createdAt } = body;
 
-    // Create a slug from the title
     const slug = title
       .toLowerCase()
       .normalize('NFD')
@@ -49,6 +43,7 @@ export async function POST(request: Request) {
       }
     });
 
+    clearPostsCache();
     return NextResponse.json(post, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
