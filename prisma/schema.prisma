@@ -6,12 +6,10 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
-// NOTE: For local development we use SQLite.
-// When deploying to Vercel, change provider to "postgresql" 
-// and set POSTGRES_URL in the Vercel dashboard.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Post {

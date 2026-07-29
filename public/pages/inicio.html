@@ -568,6 +568,40 @@ a[href="#instagram-posts"]:hover {
     }
 }
 </style>
+
+<style id="global-mobile-fixes">
+@media (max-width: 920px) {
+  /* Fix 1: Buttons aligned right, not center */
+  .mobile-menu-buttons-container {
+    align-items: flex-end !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Fix 2: Reduce left padding, keep right alignment compact */
+  .block-header-layout-mobile__dropdown--open,
+  .block-header-layout-mobile__dropdown.is-open {
+    padding: 20px 24px 30px 24px !important;
+  }
+  
+  /* Fix 3: Remove white bar - make sticky bar not leave a gap */
+  .block-sticky-bar + .block-header,
+  .block-sticky-bar + div {
+    margin-top: 0 !important;
+  }
+  
+  /* Ensure no white gap between sticky bar and first section */
+  .block-header-layout-mobile {
+    margin-bottom: 0 !important;
+  }
+  
+  /* Remove any white background from the area between sticky bar and hero */
+  main > div:first-child,
+  main > section:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+</style>
 </head>
 
 
@@ -961,7 +995,7 @@ window.addEventListener('scroll', function() {
   .mobile-menu-buttons-container {
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: flex-end !important;
     gap: 12px !important;
     margin-top: 30px !important;
     width: 100% !important;
@@ -1082,6 +1116,30 @@ window.addEventListener('scroll', function() {
       if (btn) {
         btn.classList.remove('burger--open', 'is-open');
       }
+      document.body.style.overflow = '';
+    });
+  }
+</script>
+
+<script id="global-mobile-menu-fixes">
+  if (typeof window !== 'undefined') {
+    // Close menu when clicking outside the dropdown
+    document.addEventListener('click', function(e) {
+      var dropdown = document.querySelector('.block-header-layout-mobile__dropdown');
+      var burger = document.querySelector('.burger');
+      if (!dropdown || !burger) return;
+      
+      var isOpen = dropdown.classList.contains('block-header-layout-mobile__dropdown--open') || 
+                   dropdown.classList.contains('is-open');
+      if (!isOpen) return;
+      
+      // If clicked on burger or inside dropdown, do nothing
+      if (e.target.closest('.burger') || e.target.closest('.block-header-layout-mobile__dropdown')) return;
+      
+      // Close the menu
+      dropdown.classList.remove('block-header-layout-mobile__dropdown--open', 'is-open', 'block-header-layout-mobile__dropdown--full-screen');
+      dropdown.style.cssText = '';
+      burger.classList.remove('burger--open', 'is-open');
       document.body.style.overflow = '';
     });
   }
