@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Upload, Send, Clock, Infinity, Film, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Upload, Send, Clock, Infinity, Film, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { uploadToSupabase } from '@/lib/client-upload';
 
 export default function NewStoryPage() {
   const router = useRouter();
@@ -14,20 +15,42 @@ export default function NewStoryPage() {
   const [loading, setLoading] = useState(false);
   const [previewSrc, setPreviewSrc] = useState('');
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload state
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isVideo = file.type.startsWith('video/');
+    setUploadError('');
+    setUploading(true);
+    setUploadProgress(0);
+
+    const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v)$/i.test(file.name);
     setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setMediaUrl(result);
-      setPreviewSrc(result);
-    };
-    reader.readAsDataURL(file);
+    // Show temporary local preview while uploading
+    const localPreview = URL.createObjectURL(file);
+    setPreviewSrc(localPreview);
+
+    try {
+      const result = await uploadToSupabase(file, 'stories', (percent) => {
+        setUploadProgress(percent);
+      });
+
+      setMediaUrl(result.publicUrl);
+      setPreviewSrc(result.publicUrl);
+      setMediaType(result.mediaType);
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setUploadError(err.message || 'Erro ao enviar arquivo para o armazenamento.');
+      setPreviewSrc('');
+      setMediaUrl('');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -74,13 +97,24 @@ export default function NewStoryPage() {
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">🐟 Novo Story — Pescaria Agora</h1>
-        <p className="text-gray-500 mt-1">Poste o que está acontecendo na pescaria! Escolha quanto tempo quer deixar no ar.</p>
+        <p className="text-gray-500 mt-1">Poste fotos ou vídeos da pescaria! Fotos são comprimidas automaticamente e vídeos de até 50 MB são enviados direto ao servidor.</p>
       </div>
 
       <div className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
         {/* Upload de Mídia */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">Foto ou Vídeo *</label>
+
+          {uploadError && (
+            <div className="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Erro no arquivo</p>
+                <p className="mt-0.5">{uploadError}</p>
+              </div>
+            </div>
+          )}
+
           <div className="relative">
             <div className="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden hover:border-gray-400 transition-colors cursor-pointer relative">
               {previewSrc ? (
@@ -90,42 +124,58 @@ export default function NewStoryPage() {
                   ) : (
                     <img src={previewSrc} alt="Preview" className="w-full h-full object-contain" />
                   )}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
                     {mediaType === 'VIDEO' ? <Film className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
                     {mediaType === 'VIDEO' ? 'Vídeo' : 'Foto'}
                   </div>
+
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-6 text-white backdrop-blur-sm z-20">
+                      <Loader2 className="w-8 h-8 animate-spin mb-3 text-amber-400" />
+                      <p className="font-semibold text-sm mb-2">Otimizando e enviando mídia... {uploadProgress}%</p>
+                      <div className="w-full max-w-xs bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-amber-400 h-full transition-all duration-200"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-500">
                   <Upload className="w-12 h-12 mb-4 text-gray-300" />
                   <p className="text-sm font-medium">Clique ou arraste uma foto/vídeo aqui</p>
-                  <p className="text-xs text-gray-400 mt-1">Suporta JPG, PNG, MP4, MOV</p>
+                  <p className="text-xs text-gray-400 mt-1">Fotos são compactadas automaticamente • Vídeos de até 50 MB</p>
                 </div>
               )}
+              
               <input
                 type="file"
+                disabled={uploading}
                 accept="image/*,video/*"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
                 onChange={handleFileUpload}
               />
             </div>
-            {previewSrc && (
+
+            {previewSrc && !uploading && (
               <button
                 type="button"
-                onClick={() => { setPreviewSrc(''); setMediaUrl(''); }}
-                className="mt-2 text-sm text-red-500 hover:text-red-700 transition-colors"
+                onClick={() => { setPreviewSrc(''); setMediaUrl(''); setUploadError(''); }}
+                className="mt-2 text-sm text-red-500 hover:text-red-700 transition-colors font-medium"
               >
-                Remover e escolher outro
+                ✕ Remover e escolher outro
               </button>
             )}
           </div>
 
-          {/* URL externa como alternativa */}
+          {/* URL externa opcional */}
           <div className="mt-4">
-            <label className="block text-xs text-gray-500 mb-1">Ou cole uma URL externa:</label>
+            <label className="block text-xs text-gray-500 mb-1">Ou cole uma URL externa direta:</label>
             <input
               type="text"
-              value={mediaUrl.startsWith('data:') ? '' : mediaUrl}
+              value={mediaUrl}
               onChange={e => {
                 const url = e.target.value;
                 setMediaUrl(url);
@@ -150,13 +200,13 @@ export default function NewStoryPage() {
             onChange={e => setCaption(e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B395A] focus:border-transparent outline-none transition-all resize-none"
             rows={3}
-            placeholder="Ex: Dourado de 8kg fisgado agora! 🐟🔥"
+            placeholder="Ex: Dourado de 8kg fisgado agora nas corredeiras! 🐟🔥"
           />
         </div>
 
         {/* Duração */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Tempo no Ar</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">Tempo de Permanência</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {durations.map(opt => (
               <button
@@ -184,11 +234,11 @@ export default function NewStoryPage() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading || !mediaUrl}
+            disabled={loading || uploading || !mediaUrl}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1B395A] text-white font-medium rounded-lg hover:bg-[#132c47] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-base"
           >
             <Send className="w-5 h-5" />
-            {loading ? 'Publicando...' : 'Publicar Story'}
+            {loading ? 'Publicando...' : uploading ? 'Aguarde o envio...' : 'Publicar Story'}
           </button>
         </div>
       </div>

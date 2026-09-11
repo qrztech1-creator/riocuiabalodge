@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Upload, Save, Send, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Upload, Save, Send, ExternalLink, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import QuillEditor from '@/components/QuillEditor';
+import { uploadToSupabase } from '@/lib/client-upload';
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function EditPostPage() {
   });
   
   const [loading, setLoading] = useState(true);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
 
   useEffect(() => {
     fetch(`/api/posts/${id}`)
@@ -156,18 +159,29 @@ export default function EditPostPage() {
               {form.coverImage && form.coverImage.endsWith('.mp4') ? (
                 <video src={form.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-50" muted playsInline></video>
               ) : null}
+              {uploadingCover ? (
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-30">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-400 mb-2" />
+                  <span className="text-xs font-medium">Enviando mídia...</span>
+                </div>
+              ) : null}
               <input 
                 type="file" 
+                disabled={uploadingCover}
                 accept="image/*,video/mp4"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                onChange={(e) => {
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setForm({...form, coverImage: reader.result as string});
-                    };
-                    reader.readAsDataURL(file);
+                    try {
+                      setUploadingCover(true);
+                      const res = await uploadToSupabase(file, 'posts');
+                      setForm(prev => ({...prev, coverImage: res.publicUrl}));
+                    } catch (err: any) {
+                      alert(err.message || 'Erro ao enviar arquivo');
+                    } finally {
+                      setUploadingCover(false);
+                    }
                   }
                 }}
               />
@@ -191,18 +205,29 @@ export default function EditPostPage() {
               {form.thumbnailImage && (form.thumbnailImage.startsWith('data:image') || form.thumbnailImage.startsWith('/') || form.thumbnailImage.startsWith('http')) ? (
                 <img src={form.thumbnailImage} alt="Thumbnail" className="absolute inset-0 w-full h-full object-cover opacity-50" />
               ) : null}
+              {uploadingThumb ? (
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-30">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-400 mb-2" />
+                  <span className="text-xs font-medium">Enviando foto...</span>
+                </div>
+              ) : null}
               <input 
                 type="file" 
+                disabled={uploadingThumb}
                 accept="image/*"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                onChange={(e) => {
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setForm({...form, thumbnailImage: reader.result as string});
-                    };
-                    reader.readAsDataURL(file);
+                    try {
+                      setUploadingThumb(true);
+                      const res = await uploadToSupabase(file, 'posts');
+                      setForm(prev => ({...prev, thumbnailImage: res.publicUrl}));
+                    } catch (err: any) {
+                      alert(err.message || 'Erro ao enviar imagem');
+                    } finally {
+                      setUploadingThumb(false);
+                    }
                   }
                 }}
               />

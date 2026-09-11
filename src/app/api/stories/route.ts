@@ -25,8 +25,8 @@ export async function GET() {
   try {
     const now = new Date();
 
-    // Delete expired stories automatically
-    await prisma.story.deleteMany({
+    // Find expired stories to clean up their storage files
+    const expiredStories = await prisma.story.findMany({
       where: {
         expiresAt: {
           not: null,
@@ -34,6 +34,17 @@ export async function GET() {
         },
       },
     });
+
+    if (expiredStories.length > 0) {
+      const { deleteStorageFile } = await import('@/lib/storage');
+      await Promise.all(expiredStories.map((s) => deleteStorageFile(s.mediaUrl)));
+
+      await prisma.story.deleteMany({
+        where: {
+          id: { in: expiredStories.map((s) => s.id) },
+        },
+      });
+    }
 
     // Return active stories (non-expired)
     const stories = await prisma.story.findMany({

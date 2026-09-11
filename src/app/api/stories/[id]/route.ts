@@ -7,6 +7,11 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    const story = await prisma.story.findUnique({ where: { id } });
+    if (story?.mediaUrl) {
+      const { deleteStorageFile } = await import('@/lib/storage');
+      await deleteStorageFile(story.mediaUrl);
+    }
     await prisma.story.delete({
       where: { id },
     });
