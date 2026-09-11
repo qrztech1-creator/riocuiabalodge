@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
+import { parseMedia } from "@/lib/media-helper";
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +21,19 @@ export async function GET() {
     const now = new Date();
 
     // Delete expired stories automatically
-    await prisma.story.deleteMany({
+    const expiredStories = await prisma.story.findMany({
       where: {
         expiresAt: { not: null, lte: now },
       },
     });
+
+    if (expiredStories.length > 0) {
+      const { deleteStorageFile } = await import('@/lib/storage');
+      await Promise.all(expiredStories.map(s => deleteStorageFile(s.mediaUrl)));
+      await prisma.story.deleteMany({
+        where: { id: { in: expiredStories.map(s => s.id) } }
+      });
+    }
 
     // Fetch active stories
     const stories = await prisma.story.findMany({
@@ -44,7 +53,7 @@ export async function GET() {
           width: 100%;
           max-width: 1224px;
           margin: 0 auto;
-          padding: 40px 20px;
+          padding: 50px 20px 70px;
           font-family: 'DM Sans', sans-serif;
         }
         .stories-header {
@@ -53,10 +62,11 @@ export async function GET() {
         }
         .stories-header h2 {
           font-family: 'Oswald', sans-serif;
-          font-size: 36px;
+          font-size: 38px;
           font-weight: 700;
           color: #ffd000;
           margin-bottom: 8px;
+          letter-spacing: 0.03em;
         }
         .stories-header p {
           color: #ccc;
@@ -66,30 +76,46 @@ export async function GET() {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 24px;
+          align-items: start;
         }
         .story-card {
           border-radius: 16px;
           overflow: hidden;
-          background: #222;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+          background: #1e1e1e;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.35);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
           position: relative;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid rgba(255,255,255,0.08);
         }
         .story-card:hover {
           transform: translateY(-6px);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+          box-shadow: 0 18px 45px rgba(0,0,0,0.5);
         }
         .story-media {
           position: relative;
-          aspect-ratio: 9/16;
-          max-height: 480px;
-          overflow: hidden;
-          background: #111;
-        }
-        .story-media img, .story-media video {
           width: 100%;
-          height: 100%;
-          object-fit: cover;
+          min-height: 220px;
+          background: #000;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .story-media img {
+          width: 100%;
+          height: auto;
+          max-height: 550px;
+          object-fit: contain;
+          display: block;
+        }
+        .story-media video {
+          width: 100%;
+          height: auto;
+          max-height: 550px;
+          object-fit: contain;
+          display: block;
         }
         .story-badge {
           position: absolute;
@@ -105,17 +131,36 @@ export async function GET() {
           text-transform: uppercase;
           letter-spacing: 0.05em;
           backdrop-filter: blur(8px);
+          z-index: 10;
+        }
+        .story-type-badge {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 10px;
+          border-radius: 9999px;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          background: rgba(0,0,0,0.75);
+          color: #fff;
+          backdrop-filter: blur(8px);
+          z-index: 10;
         }
         .badge-permanent {
-          background: rgba(34, 197, 94, 0.8);
+          background: rgba(34, 197, 94, 0.9);
           color: white;
         }
         .badge-timed {
-          background: rgba(245, 158, 11, 0.8);
+          background: rgba(245, 158, 11, 0.9);
           color: white;
         }
         .story-caption {
-          padding: 16px 20px;
+          padding: 16px 20px 10px;
           color: #eee;
           font-size: 15px;
           line-height: 1.5;
@@ -124,6 +169,9 @@ export async function GET() {
           padding: 0 20px 16px;
           font-size: 12px;
           color: #888;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
         .stories-empty {
           text-align: center;
@@ -132,17 +180,26 @@ export async function GET() {
         }
         .stories-empty h3 {
           font-family: 'Oswald', sans-serif;
-          font-size: 24px;
+          font-size: 26px;
           color: #aaa;
           margin-bottom: 8px;
         }
+        .yt-container {
+          width: 100%;
+          aspect-ratio: 16/9;
+        }
+        .yt-container.is-short {
+          aspect-ratio: 9/16;
+        }
+        .yt-container iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
         @media (max-width: 640px) {
           .stories-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-          }
-          .story-media {
-            max-height: 320px;
+            grid-template-columns: 1fr;
+            gap: 20px;
           }
           .stories-header h2 {
             font-size: 28px;
@@ -152,28 +209,46 @@ export async function GET() {
       <div class="stories-section">
         <div class="stories-header">
           <h2>🐟 PESCARIA ACONTECENDO AGORA</h2>
-          <p>Veja o que está rolando na pescaria em tempo real!</p>
+          <p>Acompanhe o que está acontecendo nas águas do Rio Cuiabá em tempo real!</p>
         </div>
         ${stories.length > 0 ? `
           <div class="stories-grid">
             ${stories.map(story => {
-              const isVideo = story.mediaType === 'VIDEO';
+              const media = parseMedia(story.mediaUrl);
               const isPermanent = !story.expiresAt;
               const timeAgo = getTimeAgo(story.createdAt);
               
+              let mediaElement = '';
+              if (media.type === 'YOUTUBE') {
+                mediaElement = `
+                  <div class="yt-container ${media.isShort ? 'is-short' : ''}">
+                    <iframe src="${media.embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                  </div>
+                `;
+              } else if (media.type === 'VIDEO') {
+                mediaElement = `<video src="${story.mediaUrl}" autoplay muted loop playsinline controls></video>`;
+              } else {
+                mediaElement = `<img src="${story.mediaUrl}" alt="${story.caption || 'Pescaria'}" loading="lazy" />`;
+              }
+
               return `
                 <div class="story-card">
                   <div class="story-media">
-                    ${isVideo
-                      ? `<video src="${story.mediaUrl}" autoplay muted loop playsinline></video>`
-                      : `<img src="${story.mediaUrl}" alt="${story.caption || 'Pescaria'}" loading="lazy" />`
-                    }
+                    ${mediaElement}
+                    <div class="story-type-badge">
+                      ${media.type === 'YOUTUBE' ? '▶ YouTube' : media.type === 'VIDEO' ? '🎥 Vídeo' : '📷 Foto'}
+                    </div>
                     <div class="story-badge ${isPermanent ? 'badge-permanent' : 'badge-timed'}">
                       ${isPermanent ? '∞ Fixo' : getTimeRemaining(story.expiresAt)}
                     </div>
                   </div>
                   ${story.caption ? `<div class="story-caption">${story.caption}</div>` : ''}
-                  <div class="story-time">${timeAgo}</div>
+                  <div class="story-time">
+                    <span>${timeAgo}</span>
+                    <span style="color: ${isPermanent ? '#4ade80' : '#fbbf24'}; font-weight: 600;">
+                      ${isPermanent ? 'Permanente' : getTimeRemaining(story.expiresAt)}
+                    </span>
+                  </div>
                 </div>
               `;
             }).join('')}

@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Upload, Send, Clock, Infinity, Film, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Upload, Send, Clock, Infinity, Film, Image as ImageIcon, Video, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { uploadToSupabase } from '@/lib/client-upload';
+import { parseMedia } from '@/lib/media-helper';
 
 export default function NewStoryPage() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function NewStoryPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState('');
+
+  const parsedMedia = parseMedia(previewSrc || mediaUrl);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,9 +56,22 @@ export default function NewStoryPage() {
     }
   };
 
+  const handleUrlChange = (url: string) => {
+    setMediaUrl(url);
+    setPreviewSrc(url);
+    setUploadError('');
+
+    const parsed = parseMedia(url);
+    if (parsed.type === 'YOUTUBE' || parsed.type === 'VIDEO') {
+      setMediaType('VIDEO');
+    } else {
+      setMediaType('IMAGE');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!mediaUrl) {
-      alert('Envie uma foto ou vídeo antes de publicar.');
+      alert('Envie uma foto/vídeo ou cole um link antes de publicar.');
       return;
     }
 
@@ -64,7 +80,12 @@ export default function NewStoryPage() {
       const res = await fetch('/api/stories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caption, mediaUrl, mediaType, duration }),
+        body: JSON.stringify({ 
+          caption, 
+          mediaUrl: mediaUrl.trim(), 
+          mediaType: (parsedMedia.type === 'YOUTUBE' || parsedMedia.type === 'VIDEO') ? 'VIDEO' : 'IMAGE', 
+          duration 
+        }),
       });
 
       if (res.ok) {
@@ -97,13 +118,13 @@ export default function NewStoryPage() {
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">🐟 Novo Story — Pescaria Agora</h1>
-        <p className="text-gray-500 mt-1">Poste fotos ou vídeos da pescaria! Fotos são comprimidas automaticamente e vídeos de até 50 MB são enviados direto ao servidor.</p>
+        <p className="text-gray-500 mt-1">Poste fotos, vídeos ou links do YouTube da pescaria! A mídia adapta-se ao tamanho original sem cortes.</p>
       </div>
 
       <div className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        {/* Upload de Mídia */}
+        {/* Upload de Mídia ou Link */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Foto ou Vídeo *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">Foto, Vídeo ou Link do YouTube *</label>
 
           {uploadError && (
             <div className="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
@@ -115,22 +136,50 @@ export default function NewStoryPage() {
             </div>
           )}
 
+          {/* Área de Preview Adaptativa (sem cortar imagens) */}
           <div className="relative">
-            <div className="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden hover:border-gray-400 transition-colors cursor-pointer relative">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden hover:border-gray-400 transition-colors cursor-pointer relative bg-neutral-950">
               {previewSrc ? (
-                <div className="relative aspect-video bg-gray-900">
-                  {mediaType === 'VIDEO' ? (
-                    <video src={previewSrc} className="w-full h-full object-contain" controls muted playsInline />
+                <div className="relative w-full min-h-[220px] max-h-[550px] flex items-center justify-center p-2">
+                  {parsedMedia.type === 'YOUTUBE' ? (
+                    <div className={`w-full ${parsedMedia.isShort ? 'aspect-[9/16] max-w-sm' : 'aspect-video max-w-2xl'} rounded-lg overflow-hidden`}>
+                      <iframe
+                        src={parsedMedia.embedUrl}
+                        className="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : parsedMedia.type === 'VIDEO' ? (
+                    <video
+                      src={previewSrc}
+                      className="w-full max-h-[500px] object-contain rounded-lg"
+                      controls
+                      muted
+                      playsInline
+                    />
                   ) : (
-                    <img src={previewSrc} alt="Preview" className="w-full h-full object-contain" />
+                    <img
+                      src={previewSrc}
+                      alt="Preview"
+                      className="w-full max-h-[500px] object-contain rounded-lg"
+                    />
                   )}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
-                    {mediaType === 'VIDEO' ? <Film className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                    {mediaType === 'VIDEO' ? 'Vídeo' : 'Foto'}
+
+                  {/* Badge de tipo */}
+                  <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/75 text-white text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm z-10">
+                    {parsedMedia.type === 'YOUTUBE' ? (
+                      <Video className="w-3.5 h-3.5 text-red-400" />
+                    ) : parsedMedia.type === 'VIDEO' ? (
+                      <Film className="w-3.5 h-3.5 text-blue-400" />
+                    ) : (
+                      <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                    )}
+                    {parsedMedia.type === 'YOUTUBE' ? 'YouTube' : parsedMedia.type === 'VIDEO' ? 'Vídeo' : 'Foto'}
                   </div>
 
                   {uploading && (
-                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-6 text-white backdrop-blur-sm z-20">
+                    <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center p-6 text-white backdrop-blur-sm z-20">
                       <Loader2 className="w-8 h-8 animate-spin mb-3 text-amber-400" />
                       <p className="font-semibold text-sm mb-2">Otimizando e enviando mídia... {uploadProgress}%</p>
                       <div className="w-full max-w-xs bg-gray-700 h-2 rounded-full overflow-hidden">
@@ -143,10 +192,11 @@ export default function NewStoryPage() {
                   )}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                <div className="flex flex-col items-center justify-center py-16 text-gray-500 bg-white">
                   <Upload className="w-12 h-12 mb-4 text-gray-300" />
-                  <p className="text-sm font-medium">Clique ou arraste uma foto/vídeo aqui</p>
+                  <p className="text-sm font-medium text-gray-700">Clique ou arraste uma foto ou vídeo aqui</p>
                   <p className="text-xs text-gray-400 mt-1">Fotos são compactadas automaticamente • Vídeos de até 50 MB</p>
+                  <p className="text-xs text-blue-600 mt-2 font-medium">Ou cole um link do YouTube / link direto abaixo</p>
                 </div>
               )}
               
@@ -170,25 +220,21 @@ export default function NewStoryPage() {
             )}
           </div>
 
-          {/* URL externa opcional */}
+          {/* Campo para colar URL do YouTube ou Link Direto */}
           <div className="mt-4">
-            <label className="block text-xs text-gray-500 mb-1">Ou cole uma URL externa direta:</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              Cole um Link do YouTube (vídeo ou Shorts) ou link direto de foto/vídeo:
+            </label>
             <input
               type="text"
               value={mediaUrl}
-              onChange={e => {
-                const url = e.target.value;
-                setMediaUrl(url);
-                setPreviewSrc(url);
-                if (url.match(/\.(mp4|mov|webm)$/i)) {
-                  setMediaType('VIDEO');
-                } else {
-                  setMediaType('IMAGE');
-                }
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B395A] focus:border-transparent outline-none transition-all text-sm"
-              placeholder="https://..."
+              onChange={e => handleUrlChange(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B395A] focus:border-transparent outline-none transition-all text-sm"
+              placeholder="https://www.youtube.com/watch?v=... ou https://youtu.be/... ou https://youtube.com/shorts/..."
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Suporta links normais do YouTube, YouTube Shorts, Vimeo e links diretos (.mp4, .jpg, .png, etc.).
+            </p>
           </div>
         </div>
 

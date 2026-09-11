@@ -853,23 +853,39 @@ document.addEventListener("DOMContentLoaded", async () => {
             const igContainer = document.getElementById('instagram-posts');
             if (igContainer) {
                 igContainer.innerHTML = '';
-                igContainer.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important; gap: 20px !important; width: 100% !important; max-width: 1224px !important; margin: 0 auto !important; padding: 20px 0 !important;';
+                igContainer.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; gap: 24px !important; width: 100% !important; max-width: 1224px !important; margin: 0 auto !important; padding: 20px 0 !important; align-items: start !important;';
                 
                 stories.slice(0, 4).forEach(story => {
-                    const isVideo = story.mediaType === 'VIDEO';
+                    const cleanUrl = (story.mediaUrl || '').trim();
+                    const ytMatch = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([\w-]{11})/i);
+                    const isYouTube = !!ytMatch;
+                    const isShort = isYouTube && cleanUrl.includes('/shorts/');
+                    const isVideo = isYouTube || story.mediaType === 'VIDEO' || /\.(mp4|mov|webm|m4v)(\?.*)?$/i.test(cleanUrl);
                     const isPermanent = !story.expiresAt;
+                    
+                    let mediaMarkup = '';
+                    if (isYouTube) {
+                        const ytId = ytMatch[1];
+                        const embed = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&mute=1&loop=1&playlist=' + ytId + '&playsinline=1';
+                        mediaMarkup = '<div style="width: 100%; aspect-ratio: ' + (isShort ? '9/16' : '16/9') + ';"><iframe src="' + embed + '" style="width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+                    } else if (isVideo) {
+                        mediaMarkup = '<video src="' + story.mediaUrl + '" autoplay muted loop playsinline controls style="width: 100%; height: auto; max-height: 480px; object-fit: contain; display: block; background: #000;"></video>';
+                    } else {
+                        mediaMarkup = '<img src="' + story.mediaUrl + '" alt="' + (story.caption || 'Pescaria Agora') + '" style="width: 100%; height: auto; max-height: 480px; object-fit: contain; display: block; background: #111;" loading="lazy" />';
+                    }
+
                     const card = document.createElement('div');
-                    card.style.cssText = 'border-radius: 16px; overflow: hidden; background: #1a1a1a; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: transform 0.3s ease; display: flex; flex-direction: column; position: relative;';
+                    card.style.cssText = 'border-radius: 16px; overflow: hidden; background: #1a1a1a; box-shadow: 0 10px 30px rgba(0,0,0,0.35); transition: transform 0.3s ease; display: flex; flex-direction: column; position: relative; border: 1px solid rgba(255,255,255,0.08);';
                     card.onmouseover = () => { card.style.transform = 'translateY(-6px)'; };
                     card.onmouseout = () => { card.style.transform = 'none'; };
                     
                     card.innerHTML = `
-                        <div style="position: relative; aspect-ratio: 9/16; max-height: 420px; overflow: hidden; background: #000;">
-                            ${isVideo 
-                                ? '<video src="' + story.mediaUrl + '" autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>'
-                                : '<img src="' + story.mediaUrl + '" alt="' + (story.caption || 'Pescaria Agora') + '" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" />'
-                            }
-                            <div style="position: absolute; top: 12px; right: 12px; background: ${isPermanent ? 'rgba(34,197,94,0.85)' : 'rgba(245,158,11,0.85)'}; color: white; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px);">
+                        <div style="position: relative; width: 100%; min-height: 200px; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            ${mediaMarkup}
+                            <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px); z-index: 10;">
+                                ${isYouTube ? '▶ YouTube' : (isVideo ? '🎥 Vídeo' : '📷 Foto')}
+                            </div>
+                            <div style="position: absolute; top: 12px; right: 12px; background: ${isPermanent ? 'rgba(34,197,94,0.9)' : 'rgba(245,158,11,0.9)'}; color: white; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(4px); z-index: 10;">
                                 ${isPermanent ? '∞ Fixo' : 'Ao Vivo'}
                             </div>
                         </div>
