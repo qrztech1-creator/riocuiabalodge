@@ -97,24 +97,24 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestão de Usuários</h1>
-          <p className="text-gray-500 text-sm mt-1">Gerencie os acessos ao painel administrativo</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Gestão de Usuários</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">Gerencie os acessos ao painel administrativo</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-[#1B395A] hover:bg-[#132c47] text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm"
+          className="flex items-center justify-center gap-2 bg-[#1B395A] hover:bg-[#132c47] text-white px-4 py-2.5 rounded-lg transition-colors font-medium shadow-sm text-sm"
         >
-          <UserPlus className="w-5 h-5" />
+          <UserPlus className="w-4 h-4" />
           Novo Usuário
         </button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600">
+          <table className="w-full min-w-[550px] text-left text-sm text-gray-600">
             <thead className="bg-gray-50/50 text-xs uppercase text-gray-500 font-semibold border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4">Usuário</th>

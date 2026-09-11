@@ -49,39 +49,39 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="mb-8 border-b pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Bem-vindo, Admin</h1>
-        <p className="text-gray-500 mt-1">Painel de gerenciamento do site Rio Cuiabá Lodge.</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div className="mb-6 sm:mb-8 border-b pb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Bem-vindo, Admin</h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">Painel de gerenciamento do site Rio Cuiabá Lodge.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {metricCards.map((card, i) => (
-          <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 text-gray-500 mb-4">
+          <div key={i} className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3 text-gray-500 mb-3 sm:mb-4">
               <div className="p-2 bg-gray-50 rounded-lg">
                 <card.icon className="w-5 h-5 text-[#1B395A]" />
               </div>
-              <span className="font-medium text-sm">{card.label}</span>
+              <span className="font-medium text-xs sm:text-sm">{card.label}</span>
             </div>
-            <div className="text-3xl font-bold text-gray-900">
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900">
               {card.value}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <Link href="/admin/posts?category=NOTICIA" className="px-6 py-2.5 bg-[#1B395A] text-white rounded-lg font-medium hover:bg-[#132c47] transition-colors shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 sm:gap-4">
+        <Link href="/admin/posts?category=NOTICIA" className="px-5 py-3 bg-[#1B395A] text-white rounded-xl font-medium hover:bg-[#132c47] transition-colors shadow-sm text-center text-sm">
           Gerenciar Notícias
         </Link>
-        <Link href="/admin/posts?category=ARTIGO" className="px-6 py-2.5 bg-[#1B395A] text-white rounded-lg font-medium hover:bg-[#132c47] transition-colors shadow-sm">
+        <Link href="/admin/posts?category=ARTIGO" className="px-5 py-3 bg-[#1B395A] text-white rounded-xl font-medium hover:bg-[#132c47] transition-colors shadow-sm text-center text-sm">
           Gerenciar Artigos
         </Link>
-        <Link href="/admin/posts?category=EVENTO" className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+        <Link href="/admin/posts?category=EVENTO" className="px-5 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors text-center text-sm">
           Gerenciar Eventos
         </Link>
-        <Link href="/admin/stories" className="px-6 py-2.5 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-colors shadow-sm">
+        <Link href="/admin/stories" className="px-5 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors shadow-sm text-center text-sm">
           🐟 Pescaria Agora
         </Link>
       </div>

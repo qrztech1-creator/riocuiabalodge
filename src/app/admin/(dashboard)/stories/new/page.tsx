@@ -110,18 +110,18 @@ export default function NewStoryPage() {
   ];
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <Link href="/admin/stories" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
+      <Link href="/admin/stories" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4 sm:mb-6">
         <ArrowLeft className="w-4 h-4" />
         Voltar para Stories
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">🐟 Novo Story — Pescaria Agora</h1>
-        <p className="text-gray-500 mt-1">Poste fotos, vídeos ou links do YouTube da pescaria! A mídia adapta-se ao tamanho original sem cortes.</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">🐟 Novo Story — Pescaria Agora</h1>
+        <p className="text-gray-500 text-xs sm:text-sm mt-1">Poste fotos, vídeos ou links do YouTube da pescaria! A mídia adapta-se ao tamanho original sem cortes.</p>
       </div>
 
-      <div className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <div className="space-y-6 sm:space-y-8 bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-100">
         {/* Upload de Mídia ou Link */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">Foto, Vídeo ou Link do YouTube *</label>

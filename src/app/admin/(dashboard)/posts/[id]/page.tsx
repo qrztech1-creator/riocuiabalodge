@@ -93,17 +93,17 @@ export default function EditPostPage() {
   if (loading) return <div className="p-8 text-center text-gray-500">Carregando...</div>;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <Link href={`/admin/posts?category=${form.category}`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+      <Link href={`/admin/posts?category=${form.category}`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-4 sm:mb-6">
         <ArrowLeft className="w-4 h-4" />
         Voltar para posts
       </Link>
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Editar Post</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Editar Post</h1>
       </div>
 
-      <form className="space-y-6 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <form className="space-y-6 bg-white p-4 sm:p-8 rounded-xl shadow-sm border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">Título *</label>
@@ -248,36 +248,38 @@ export default function EditPostPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 pt-6 border-t mt-8">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-6 border-t mt-8">
           <button
             type="button"
             onClick={(e) => handlePreview(e)}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
             Preview
           </button>
 
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, true)}
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors ml-auto"
-          >
-            <Save className="w-4 h-4" />
-            Salvar Rascunho
-          </button>
-          
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, false)}
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#1B395A] text-white font-medium rounded-lg hover:bg-[#132c47] transition-colors shadow-sm"
-          >
-            <Send className="w-4 h-4" />
-            Salvar e Publicar
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:ml-auto">
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              Salvar Rascunho
+            </button>
+            
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e, false)}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#1B395A] text-white font-medium rounded-lg hover:bg-[#132c47] transition-colors shadow-sm"
+            >
+              <Send className="w-4 h-4" />
+              Salvar e Publicar
+            </button>
+          </div>
         </div>
       </form>
     </div>

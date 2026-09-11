@@ -49,16 +49,16 @@ function PostsList() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8 border-b pb-4">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 border-b pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-          <p className="text-gray-500 mt-1">Gerencie os registros do site.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Gerencie os registros do site.</p>
         </div>
         <div className="flex gap-3">
           <Link 
             href={`/admin/posts/new?category=${category}`}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#1B395A] text-white rounded-lg font-medium hover:bg-[#132c47] transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1B395A] text-white rounded-lg font-medium hover:bg-[#132c47] transition-colors shadow-sm text-sm"
           >
             <Plus className="w-4 h-4" />
             Novo Post
@@ -68,7 +68,7 @@ function PostsList() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full min-w-[600px] text-sm text-left">
             <thead className="bg-gray-50/50 text-gray-500 text-xs uppercase font-medium border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4">Título</th>
