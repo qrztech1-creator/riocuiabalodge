@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { LayoutDashboard, FileText, Calendar, LogOut, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, LogOut, ArrowLeft, Fish } from 'lucide-react';
 import Link from 'next/link';
 
 import { Suspense } from 'react';
@@ -34,6 +34,7 @@ function Sidebar() {
     { name: 'Notícias', href: '/admin/posts?category=NOTICIA', icon: FileText, category: 'NOTICIA' },
     { name: 'Artigos', href: '/admin/posts?category=ARTIGO', icon: FileText, category: 'ARTIGO' },
     { name: 'Eventos', href: '/admin/posts?category=EVENTO', icon: Calendar, category: 'EVENTO' },
+    { name: 'Pescaria Agora', href: '/admin/stories', icon: Fish, category: null },
   ];
 
   if (role === 'SUPERADMIN') {
@@ -56,7 +57,7 @@ function Sidebar() {
         {navItems.map((item) => {
           const isActive = item.category 
             ? pathname.includes('/posts') && currentCategory === item.category
-            : pathname === item.href;
+            : pathname === item.href || pathname.startsWith(item.href + '/');
             
           return (
             <Link

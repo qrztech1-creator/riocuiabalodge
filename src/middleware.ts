@@ -51,6 +51,7 @@ export async function middleware(request: NextRequest) {
   // Same for API routes that write data (POST/PUT/DELETE)
   if (
     (pathname.startsWith('/api/posts') && request.method !== 'GET') ||
+    (pathname.startsWith('/api/stories') && request.method !== 'GET') ||
     pathname.startsWith('/api/users')
   ) {
     const sessionCookie = request.cookies.get('session')?.value;
@@ -81,7 +82,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/', '/pousada', '/pescaria', '/eventos', '/depoimentos', '/contato', '/blog-list',
-    '/admin/:path*', '/api/posts/:path*', '/api/users/:path*'
+    '/', '/pousada', '/pescaria', '/pescaria-acontecendo', '/eventos', '/depoimentos', '/contato', '/blog-list',
+    '/admin/:path*', '/api/posts/:path*', '/api/stories/:path*', '/api/users/:path*'
   ],
 };

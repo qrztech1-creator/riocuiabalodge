@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Eye, Edit3, Search, Folder, Scale, CalendarDays, FileText } from 'lucide-react';
+import { Eye, Edit3, Search, Folder, Scale, CalendarDays, FileText, Fish } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
@@ -9,7 +9,8 @@ export default function Dashboard() {
     noticiasPublicadas: 0,
     rascunhos: 0,
     eventos: 0,
-    artigos: 0
+    artigos: 0,
+    storiesAtivos: 0
   });
 
   useEffect(() => {
@@ -29,12 +30,22 @@ export default function Dashboard() {
           eventos: eventos
         }));
       });
+    
+    fetch('/api/stories')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStats(s => ({ ...s, storiesAtivos: data.length }));
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const metricCards = [
     { label: 'Notícias Publicadas', value: stats.noticiasPublicadas, icon: Eye },
     { label: 'Artigos', value: stats.artigos, icon: FileText },
     { label: 'Eventos', value: stats.eventos, icon: CalendarDays },
+    { label: 'Pescaria Agora', value: stats.storiesAtivos, icon: Fish },
   ];
 
   return (
@@ -69,6 +80,9 @@ export default function Dashboard() {
         </Link>
         <Link href="/admin/posts?category=EVENTO" className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
           Gerenciar Eventos
+        </Link>
+        <Link href="/admin/stories" className="px-6 py-2.5 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-colors shadow-sm">
+          🐟 Pescaria Agora
         </Link>
       </div>
     </div>
