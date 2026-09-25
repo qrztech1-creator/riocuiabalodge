@@ -56,6 +56,8 @@ AGENTS.md
 
 # large media
 *.mp4
+!public/lp/assets/video/*.mp4
+!rio-cuiaba-lodge-lp/assets/video/*.mp4
 
 # live/backup HTML templates
 public/pages/inicio_live.html
