@@ -28,7 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     const post = await getCachedPostBySlug(slug);
 
     if (!post) {
-      return NextResponse.next();
+      return new NextResponse('Not Found', { status: 404 });
     }
 
     let templatePath = path.join(process.cwd(), `public/pages/${slug}.html`);
